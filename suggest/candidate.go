@@ -2,6 +2,7 @@ package suggest
 
 import (
 	"fmt"
+	"go/ast"
 	"go/types"
 	"sort"
 	"strings"
@@ -78,6 +79,7 @@ type candidateCollector struct {
 	candidates []Candidate
 	exact      []types.Object
 	badcase    []types.Object
+	imports    []*ast.ImportSpec
 	localpkg   *types.Package
 	partial    string
 	filter     objectFilter
@@ -157,6 +159,26 @@ func (b *candidateCollector) qualify(pkg *types.Package) string {
 	if pkg == b.localpkg {
 		return ""
 	}
+
+	// the *types.Package we are asked to qualify might _not_ be imported
+	// by the file in which we are asking for candidates. Hence... we retain
+	// the default of pkg.Name() as the qualifier
+
+	for _, i := range b.imports {
+		// given the import spec has been correctly parsed (by virtue of
+		// its existence) we can safely byte-index the path value knowing
+		// that len("\"") == 1
+		iPath := i.Path.Value[1 : len(i.Path.Value)-1]
+
+		if iPath == pkg.Path() {
+			if i.Name != nil && i.Name.Name != "." {
+				return i.Name.Name
+			} else {
+				return pkg.Name()
+			}
+		}
+	}
+
 	return pkg.Name()
 }
 

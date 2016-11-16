@@ -26,7 +26,7 @@ func (c *Config) Suggest(filename string, data []byte, cursor int) ([]Candidate,
 		return nil, 0
 	}
 
-	fset, pos, pkg := c.analyzePackage(filename, data, cursor)
+	fset, pos, pkg, imports := c.analyzePackage(filename, data, cursor)
 	if pkg == nil {
 		return nil, 0
 	}
@@ -35,6 +35,7 @@ func (c *Config) Suggest(filename string, data []byte, cursor int) ([]Candidate,
 	ctx, expr, partial := deduceCursorContext(data, cursor)
 	b := candidateCollector{
 		localpkg: pkg,
+		imports:  imports,
 		partial:  partial,
 		filter:   objectFilters[partial],
 	}
@@ -75,7 +76,7 @@ func (c *Config) Suggest(filename string, data []byte, cursor int) ([]Candidate,
 	return res, len(partial)
 }
 
-func (c *Config) analyzePackage(filename string, data []byte, cursor int) (*token.FileSet, token.Pos, *types.Package) {
+func (c *Config) analyzePackage(filename string, data []byte, cursor int) (*token.FileSet, token.Pos, *types.Package, []*ast.ImportSpec) {
 	// If we're in trailing white space at the end of a scope,
 	// sometimes go/types doesn't recognize that variables should
 	// still be in scope there.
@@ -88,7 +89,7 @@ func (c *Config) analyzePackage(filename string, data []byte, cursor int) (*toke
 	}
 	astPos := fileAST.Pos()
 	if astPos == 0 {
-		return nil, token.NoPos, nil
+		return nil, token.NoPos, nil, nil
 	}
 	pos := fset.File(astPos).Pos(cursor)
 
@@ -107,7 +108,7 @@ func (c *Config) analyzePackage(filename string, data []byte, cursor int) (*toke
 	}
 	pkg, _ := cfg.Check("", fset, append(otherASTs, fileAST), nil)
 
-	return fset, pos, pkg
+	return fset, pos, pkg, fileAST.Imports
 }
 
 func (c *Config) fieldNameCandidates(typ types.Type, b *candidateCollector) {
