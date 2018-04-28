@@ -6,7 +6,9 @@ This fork will be maintained as long as it's needed or until [`go-langserver`](h
 
 ## Merged PRs
 
-- ~~[server: initial cut of vgo-aware type loader](https://github.com/mdempsky/gocode/pull/26) by [@myitcv](https://github.com/myitcv).~~ removed by Author.
+- [Use import name if set else package name when qualifying types](https://github.com/mdempsky/gocode/pull/23/) by [@myitcv](https://github.com/myitcv).
+
+- ~~[server: initial cut of vgo-aware type loader](https://github.com/mdempsky/gocode/pull/26) by [@myitcv](https://github.com/myitcv).~~ removed by author.
 
 - ~~[fix panic when suggesting at the beginning of a file](https://github.com/mdempsky/gocode/pull/24) by [@tiborvass](https://github.com/tiborvass). due to merge conflicts, the commit doesn't include the author's name.~~ merged upstream.
 
