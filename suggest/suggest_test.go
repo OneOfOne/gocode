@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mdempsky/gocode/suggest"
+	"github.com/OneOfOne/gocode/suggest"
 )
 
 func TestRegress(t *testing.T) {
