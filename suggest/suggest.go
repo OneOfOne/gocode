@@ -93,20 +93,31 @@ func (c *Config) analyzePackage(filename string, data []byte, cursor int) (*toke
 	}
 	pos := fset.File(astPos).Pos(cursor)
 
-	var otherASTs []*ast.File
+	files := []*ast.File{fileAST}
 	for _, otherName := range c.findOtherPackageFiles(filename, fileAST.Name.Name) {
 		ast, err := parser.ParseFile(fset, otherName, nil, 0)
 		if err != nil {
 			c.logParseError("Error parsing other file", err)
 		}
-		otherASTs = append(otherASTs, ast)
+		files = append(files, ast)
+	}
+
+	// Clear any function bodies other than where the cursor
+	// is. They're not relevant to suggestions and only slow down
+	// typechecking.
+	for _, file := range files {
+		for _, decl := range file.Decls {
+			if fd, ok := decl.(*ast.FuncDecl); ok && (pos < fd.Pos() || pos >= fd.End()) {
+				fd.Body = nil
+			}
+		}
 	}
 
 	cfg := types.Config{
 		Importer: c.Importer,
 		Error:    func(err error) {},
 	}
-	pkg, _ := cfg.Check("", fset, append(otherASTs, fileAST), nil)
+	pkg, _ := cfg.Check("", fset, files, nil)
 
 	return fset, pos, pkg, fileAST.Imports
 }
