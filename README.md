@@ -2,7 +2,9 @@
 
 Based on [mdempsky/gocode](https://github.com/mdempsky/gocode) + some of the PRs on his repo.
 
-This fork will be maintained as long as it's needed or until [`go-langserver`](https://github.com/sourcegraph/go-langserver) implements proper completion that doesn't require `gocode`.
+~~This fork will be maintained as long as it's needed or until [`go-langserver`](https://github.com/sourcegraph/go-langserver) implements proper completion that doesn't require `gocode`.~~
+
+**This fork is now inactive since github.com/mdempsky/gocode is now actively maintained.**
 
 ## Merged PRs
 
